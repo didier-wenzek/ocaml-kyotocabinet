@@ -45,6 +45,30 @@ void RAISE(const char *error)
   caml_raise_with_string(*exception_handler, error);
 }
 
+#define KCDB_val(v) *((KCDB **) &Field(v, 0))
+#define KCCUR_val(v) *((KCCUR **) &Field(v, 0))
+
+inline KCDB* get_db(value caml_db)
+{
+  KCDB* db = KCDB_val(caml_db);
+  if (! db) {
+    RAISE("Database has been closed");
+  }
+
+  return db;
+}
+
+inline KCCUR* get_cursor(value caml_cursor)
+{
+  KCCUR* cur = KCCUR_val(caml_cursor);
+  if (! cur) {
+    RAISE("Cursor has been closed");
+  }
+
+  return cur;
+}
+
+
 extern CAMLprim
 value kc_open(value path, value options)
 {
@@ -57,7 +81,9 @@ value kc_open(value path, value options)
      RAISE(error);
   }
 
-  CAMLreturn((value) db);
+  value caml_db = alloc_small(1, Abstract_tag);
+  KCDB_val(caml_db) = db;
+  CAMLreturn(caml_db);
 }
 
 extern CAMLprim
@@ -65,13 +91,17 @@ value kc_close(value caml_db)
 {
   CAMLparam1(caml_db);
   
-  KCDB* db = (KCDB*) caml_db;
-  if (! kcdbclose(db)) {
-     const char *error = kcdbemsg(db);
-     RAISE(error);
+  KCDB* db = KCDB_val(caml_db);
+  if (db) {
+    if (! kcdbclose(db)) {
+       const char *error = kcdbemsg(db);
+       RAISE(error);
+    }
+
+    kcdbdel(db);
+    KCDB_val(caml_db) = NULL;
   }
 
-  kcdbdel(db);
   CAMLreturn(Val_unit);
 }
 
@@ -81,7 +111,7 @@ value kc_count(value caml_db)
   CAMLparam1(caml_db);
   CAMLlocal1(val);
 
-  KCDB* db = (KCDB*) caml_db;
+  KCDB* db = get_db(caml_db);
   int64_t count = kcdbcount(db);
   val = copy_int64(count);
   
@@ -93,7 +123,7 @@ value kc_set(value caml_db, value key, value val)
 {
   CAMLparam3(caml_db, key, val);
   
-  KCDB* db = (KCDB*) caml_db;
+  KCDB* db = get_db(caml_db);
   if (! kcdbset(db,
     String_val(key), caml_string_length(key),
     String_val(val), caml_string_length(val)
@@ -133,7 +163,7 @@ value kc_get(value caml_db, value key)
   CAMLparam2(caml_db, key);
   CAMLlocal1(val);
 
-  KCDB* db = (KCDB*) caml_db;
+  KCDB* db = get_db(caml_db);
   if (! kcdbaccept(db,
     String_val(key), caml_string_length(key),
     get_some_value, get_no_value, &val, 0
@@ -166,7 +196,7 @@ value kc_exists(value caml_db, value key)
   CAMLparam2(caml_db, key);
   CAMLlocal1(val);
 
-  KCDB* db = (KCDB*) caml_db;
+  KCDB* db = get_db(caml_db);
   if (! kcdbaccept(db,
     String_val(key), caml_string_length(key),
     exists_some_value, exists_no_value, &val, 0
@@ -182,7 +212,7 @@ value kc_remove(value caml_db, value key)
 {
   CAMLparam2(caml_db, key);
 
-  KCDB* db = (KCDB*) caml_db;
+  KCDB* db = get_db(caml_db);
   if (! kcdbremove(db,
     String_val(key), caml_string_length(key)
   )) {
@@ -199,7 +229,7 @@ value kc_cursor_open(value caml_db)
 {
   CAMLparam1(caml_db);
 
-  KCDB* db = (KCDB*) caml_db;
+  KCDB* db = get_db(caml_db);
   KCCUR* cur = kcdbcursor(db);
   if (! kccurjump(cur)) {
      const char *error = kccuremsg(cur);
@@ -207,7 +237,9 @@ value kc_cursor_open(value caml_db)
      RAISE(error);
   }
 
-  CAMLreturn((value) cur);
+  value caml_cursor = alloc_small(1, Abstract_tag);
+  KCCUR_val(caml_cursor) = cur;
+  CAMLreturn(caml_cursor);
 }
 
 extern CAMLprim
@@ -215,8 +247,11 @@ value kc_cursor_close(value caml_cursor)
 {
   CAMLparam1(caml_cursor);
   
-  KCCUR* cur = (KCCUR*) caml_cursor;
-  kccurdel(cur);
+  KCCUR* cur = KCCUR_val(caml_cursor);
+  if (cur) {
+    kccurdel(cur);
+    KCCUR_val(caml_cursor) = NULL;
+  }
 
   CAMLreturn(Val_unit);
 }
@@ -247,7 +282,7 @@ value kc_cursor_next(value caml_cursor)
   CAMLparam1(caml_cursor);
   CAMLlocal2(val,pair);
   
-  KCCUR* cur = (KCCUR*) caml_cursor;
+  KCCUR* cur = get_cursor(caml_cursor);
   if (kccuraccept(cur, get_pair, &pair, 0, 1)) {
     val = caml_alloc(1,0); // Some(pair);
     Store_field(val, 0, pair); 
@@ -271,7 +306,7 @@ value kc_fold(value caml_db, value caml_comb, value caml_seed)
   CAMLlocal2(val,pair);
   val = caml_seed;
 
-  KCDB* db = (KCDB*) caml_db;
+  KCDB* db = get_db(caml_db);
   KCCUR* cur = kcdbcursor(db);
   if (! kccurjump(cur)) {
      const char *error = kccuremsg(cur);
