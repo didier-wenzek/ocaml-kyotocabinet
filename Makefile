@@ -2,7 +2,7 @@ all: kyoto.cma kyoto.cmxa
 
 DESTDIR=`ocamlc -where`
 install: kyoto.cmxa kyoto.cma
-	cp kyoto.cmxa kyoto.cma libkyoto.a dllkyoto.so $(DESTDIR)
+	cp kyoto.mli kyoto.cmi kyoto.cmxa kyoto.cma libkyoto.a dllkyoto.so $(DESTDIR)
 
 .SUFFIXES: .c .cpp .o .ml .mli .cmo .cmx .cmi
 
@@ -35,6 +35,11 @@ kyoto.cmxa: kyoto.cmx libkyoto.a
 
 kyoto.cma: kyoto.cmo kyoto.cmx kyoto_ocaml_wrapper.o
 	ocamlmklib -o kyoto kyoto.cmo kyoto_ocaml_wrapper.o -lkyotocabinet
+
+test: kyoto.cmxa tests.cmx
+	ocamlopt -o tests kyoto.cmxa tests.cmx
+	./tests
+
 
 clean:
 	rm -f *.o *.cmo *.cmx *.cmi *.so *.a *.cma *.cmxa

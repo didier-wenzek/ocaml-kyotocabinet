@@ -68,7 +68,6 @@ value kc_close(value caml_db)
   KCDB* db = (KCDB*) caml_db;
   if (! kcdbclose(db)) {
      const char *error = kcdbemsg(db);
-     kcdbdel(db);
      RAISE(error);
   }
 

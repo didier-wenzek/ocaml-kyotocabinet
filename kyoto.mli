@@ -1,19 +1,7 @@
+(** A key,value store database. *)
 type db
-type cursor
 
-type db_type =
-|  TYPEVOID
-|  TYPEPHASH
-|  TYPEPTREE
-|  TYPESTASH
-|  TYPECACHE
-|  TYPEGRASS
-|  TYPEHASH
-|  TYPETREE
-|  TYPEDIR
-|  TYPEFOREST
-|  TYPETEXT
-|  TYPEMISC
+exception Error of string
 
 type open_flag =
 |  OREADER
@@ -26,57 +14,45 @@ type open_flag =
 |  OTRYLOCK
 |  ONOREPAIR
 
-exception Error of string
 
+(** Open a a database file.
+
+  The kind of the database is infered from the path,
+  and tuning parameters can trail the path.
+  These conventions are inherited from kyotocabinet::PolyDB::open() :
+  http://fallabs.com/kyotocabinet/api/classkyotocabinet_1_1PolyDB.html#a09384a72e6a72a0be98c80a1856f34aa
+*)
 external opendb: string -> open_flag list -> db = "kc_open"
+
+(** Close the database file. *)
 external close: db -> unit = "kc_close"
 
+(** Return the count of key, value pairs. *)
 external count: db -> int64 = "kc_count"
+
+(** [exists db key] checks if any data is associated to the given [key] in the database [db]. *)
 external exists: db -> string -> bool = "kc_exists"
+
+(** [get db key] returns the data associated with the given [key] in the database [db], if any. *)
 external get: db -> string -> string option = "kc_get"
 
+(** [set db key data] inserts the pair ([key], [data]) in the database [db].
+
+   If the database already contains data associated with [key],
+   that data is discarded and silently replaced by the new [data]. *)
 external set: db -> string -> string -> unit = "kc_set"
+
+(** [remove db key] removes the data associated with [key] in [db].
+
+   If [key] has no associated data, simply do nothing.*)
 external remove: db -> string -> unit = "kc_remove"
 
+(** [fold db combiner seed] folds the whole content of the database [db].*)
 external fold: db -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold"
 
+
+type cursor
 external cursor_open: db -> cursor = "kc_cursor_open"
 external cursor_next: cursor -> (string*string) option = "kc_cursor_next"
 external cursor_close: cursor -> unit = "kc_cursor_close"
-
-(*
-TODO:
-
-hash/tree compare
-
-clear
-
-update/add
-count
-check
-merge -- using a function to merge old and new values.
-zip 
-
-matchprefix
-
-transaction
-sync
-
-
-let cursor_fold comb seed cur =
-  let rec cf s =
-  Lwt.bind
-  (Lwt_preemptive.detach cursor_next cur) (
-    fun item -> match item with
-      | None -> Lwt.return s
-      | Some(kv) -> cf (comb s kv)
-  )
-  in cf seed
-
-*)
-
-
-
-
-
 
