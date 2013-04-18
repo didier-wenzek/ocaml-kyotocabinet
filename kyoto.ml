@@ -33,9 +33,17 @@ external opendb: string -> open_flag list -> db = "kc_open"
 external close: db -> unit = "kc_close"
 
 external count: db -> int64 = "kc_count"
+external size: db -> int64 = "kc_size"
+external path: db -> string = "kc_path"
+external status: db -> string = "kc_status"
+
 external exists: db -> string -> bool = "kc_exists"
-external set: db -> string -> string -> unit = "kc_set"
 external get: db -> string -> string option = "kc_get"
+external find: db -> string -> string = "kc_find"
+
+external set: db -> string -> string -> unit = "kc_set"
+external add: db -> string -> string -> unit = "kc_add"
+external replace: db -> string -> string -> unit = "kc_replace"
 external remove: db -> string -> unit = "kc_remove"
 
 external fold: db -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold"

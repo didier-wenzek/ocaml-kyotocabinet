@@ -48,7 +48,7 @@ void RAISE(const char *error)
 #define KCDB_val(v) *((KCDB **) &Field(v, 0))
 #define KCCUR_val(v) *((KCCUR **) &Field(v, 0))
 
-inline KCDB* get_db(value caml_db)
+inline static KCDB* get_db(value caml_db)
 {
   KCDB* db = KCDB_val(caml_db);
   if (! db) {
@@ -58,7 +58,7 @@ inline KCDB* get_db(value caml_db)
   return db;
 }
 
-inline KCCUR* get_cursor(value caml_cursor)
+inline static KCCUR* get_cursor(value caml_cursor)
 {
   KCCUR* cur = KCCUR_val(caml_cursor);
   if (! cur) {
@@ -119,6 +119,57 @@ value kc_count(value caml_db)
 }
 
 extern CAMLprim
+value kc_size(value caml_db)
+{
+  CAMLparam1(caml_db);
+  CAMLlocal1(val);
+
+  KCDB* db = get_db(caml_db);
+  int64_t size = kcdbsize(db);
+  val = copy_int64(size);
+  
+  CAMLreturn(val);
+}
+
+extern CAMLprim
+value kc_path(value caml_db)
+{
+  CAMLparam1(caml_db);
+  CAMLlocal1(val);
+
+  KCDB* db = get_db(caml_db);
+  const char* path = kcdbpath(db);
+  if (! path) {
+     const char *error = kcdbemsg(db);
+     RAISE(error);
+  }
+
+  val = caml_copy_string(path);
+  kcfree((void*) path);
+  
+  CAMLreturn(val);
+}
+
+extern CAMLprim
+value kc_status(value caml_db)
+{
+  CAMLparam1(caml_db);
+  CAMLlocal1(val);
+
+  KCDB* db = get_db(caml_db);
+  const char* status = kcdbstatus(db);
+  if (! status) {
+     const char *error = kcdbemsg(db);
+     RAISE(error);
+  }
+
+  val = caml_copy_string(status);
+  kcfree((void*) status);
+  
+  CAMLreturn(val);
+}
+
+extern CAMLprim
 value kc_set(value caml_db, value key, value val)
 {
   CAMLparam3(caml_db, key, val);
@@ -129,6 +180,40 @@ value kc_set(value caml_db, value key, value val)
     String_val(val), caml_string_length(val)
   )) {
      RAISE(kcdbemsg(db));
+  }
+
+  CAMLreturn(Val_unit);
+}
+
+extern CAMLprim
+value kc_add(value caml_db, value key, value val)
+{
+  CAMLparam3(caml_db, key, val);
+  
+  KCDB* db = get_db(caml_db);
+  if (! kcdbadd(db,
+    String_val(key), caml_string_length(key),
+    String_val(val), caml_string_length(val)
+  )) {
+     if (kcdbecode(db) == KCEDUPREC) caml_invalid_argument("Entry already exists");
+     else RAISE(kcdbemsg(db));
+  }
+
+  CAMLreturn(Val_unit);
+}
+
+extern CAMLprim
+value kc_replace(value caml_db, value key, value val)
+{
+  CAMLparam3(caml_db, key, val);
+  
+  KCDB* db = get_db(caml_db);
+  if (! kcdbreplace(db,
+    String_val(key), caml_string_length(key),
+    String_val(val), caml_string_length(val)
+  )) {
+     if (kcdbecode(db) == KCENOREC) raise_not_found();
+     else RAISE(kcdbemsg(db));
   }
 
   CAMLreturn(Val_unit);
@@ -171,6 +256,46 @@ value kc_get(value caml_db, value key)
      RAISE(kcdbemsg(db));
   }
   
+  CAMLreturn(val);
+}
+
+static
+const char* get_the_value(const char *kbuf, size_t ksiz, const char *vbuf, size_t vsiz, size_t *sp, void *opq)
+{
+  CAMLlocal1(str);
+
+  str = caml_alloc_string(vsiz);
+  memcpy(String_val(str), vbuf, vsiz);
+
+  value *block = (value*) opq;
+  *block = str;
+
+  return KCVISNOP;
+}
+
+static 
+const char* found_no_value(const char *kbuf, size_t ksiz, size_t *sp, void *opq)
+{
+  char** res = (char**) opq;
+  *res = NULL;
+  return KCVISNOP;
+}
+
+extern CAMLprim
+value kc_find(value caml_db, value key)
+{
+  CAMLparam2(caml_db, key);
+  CAMLlocal1(val);
+
+  KCDB* db = get_db(caml_db);
+  if (! kcdbaccept(db,
+    String_val(key), caml_string_length(key),
+    get_the_value, found_no_value, &val, 0
+  )) {
+     RAISE(kcdbemsg(db));
+  }
+  
+  if ((char*)val == NULL) raise_not_found();
   CAMLreturn(val);
 }
 

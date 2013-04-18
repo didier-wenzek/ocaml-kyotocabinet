@@ -1,6 +1,7 @@
 (** A key,value store database. *)
 type db
 
+(** Exception raised when something gone wrong with the database. *)
 exception Error of string
 
 type open_flag =
@@ -13,7 +14,6 @@ type open_flag =
 |  ONOLOCK
 |  OTRYLOCK
 |  ONOREPAIR
-
 
 (** Open a a database file.
 
@@ -30,17 +30,41 @@ external close: db -> unit = "kc_close"
 (** Return the count of key, value pairs. *)
 external count: db -> int64 = "kc_count"
 
+(** Return the size of the database file. *)
+external size: db -> int64 = "kc_size"
+
+(** Return the path of the database. *)
+external path: db -> string = "kc_path"
+
+(** Return a string status of the database. *)
+external status: db -> string = "kc_status"
+
 (** [exists db key] checks if any data is associated to the given [key] in the database [db]. *)
 external exists: db -> string -> bool = "kc_exists"
 
 (** [get db key] returns the data associated with the given [key] in the database [db], if any. *)
 external get: db -> string -> string option = "kc_get"
 
+(** [find db key] returns the data associated with the given [key], or raise Not_found if none is found. *)
+external find: db -> string -> string = "kc_find"
+
 (** [set db key data] inserts the pair ([key], [data]) in the database [db].
 
    If the database already contains data associated with [key],
    that data is discarded and silently replaced by the new [data]. *)
 external set: db -> string -> string -> unit = "kc_set"
+
+(** [add db key data] inserts the pair ([key], [data]) in the database [db].
+
+   If the database already contains data associated with [key],
+   it raises Invalid_Argument("Entry already exists"). *)
+external add: db -> string -> string -> unit = "kc_add"
+
+(** [replace db key data] inserts the pair ([key], [data]) in the database [db].
+
+   If the database already contains data associated with [key],
+   it raises Not_found. *)
+external replace: db -> string -> string -> unit = "kc_replace"
 
 (** [remove db key] removes the data associated with [key] in [db].
 

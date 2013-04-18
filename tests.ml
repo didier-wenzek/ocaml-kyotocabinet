@@ -17,6 +17,15 @@ let _ =
   Kyoto.set db "bar" "step2";
   Kyoto.remove db "baz2";
 
+  (* check records *)
+  assert (Kyoto.exists db "foo");
+  assert (not (Kyoto.exists db "baz2"));
+
+  (* get stats *)
+  assert (Kyoto.count db = 3L);
+  assert (Kyoto.size db > 10L);
+  assert (Kyoto.path db = "+");
+
   (* fold the whole database *)
   assert (Kyoto.fold db (fun n x -> n+1) 0 = 3);
 
