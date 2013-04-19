@@ -51,3 +51,8 @@ external fold: db -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold"
 external cursor_open: db -> cursor = "kc_cursor_open"
 external cursor_next: cursor -> (string*string) option = "kc_cursor_next"
 external cursor_close: cursor -> unit = "kc_cursor_close"
+
+external begin_tran: db -> unit = "kc_begin_tran"
+external begin_tran_sync: db -> unit = "kc_begin_tran_sync"
+external commit_tran: db -> unit = "kc_commit_tran"
+external abort_tran: db -> unit = "kc_abort_tran"

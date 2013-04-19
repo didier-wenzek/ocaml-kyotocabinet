@@ -452,3 +452,59 @@ value kc_fold(value caml_db, value caml_comb, value caml_seed)
   kccurdel(cur);
   CAMLreturn(val);
 }
+
+extern CAMLprim
+value kc_begin_tran(value caml_db)
+{
+  CAMLparam1(caml_db);
+  
+  KCDB* db = get_db(caml_db);
+  if (! kcdbbegintran(db, 0)) {
+     const char *error = kcdbemsg(db);
+     RAISE(error);
+  }
+
+  CAMLreturn(Val_unit);
+}
+
+extern CAMLprim
+value kc_begin_tran_sync(value caml_db)
+{
+  CAMLparam1(caml_db);
+  
+  KCDB* db = get_db(caml_db);
+  if (! kcdbbegintran(db, 1)) {
+     const char *error = kcdbemsg(db);
+     RAISE(error);
+  }
+
+  CAMLreturn(Val_unit);
+}
+
+extern CAMLprim
+value kc_commit_tran(value caml_db)
+{
+  CAMLparam1(caml_db);
+  
+  KCDB* db = get_db(caml_db);
+  if (! kcdbendtran(db, 1)) {
+     const char *error = kcdbemsg(db);
+     RAISE(error);
+  }
+
+  CAMLreturn(Val_unit);
+}
+
+extern CAMLprim
+value kc_abort_tran(value caml_db)
+{
+  CAMLparam1(caml_db);
+  
+  KCDB* db = get_db(caml_db);
+  if (! kcdbendtran(db, 0)) {
+     const char *error = kcdbemsg(db);
+     RAISE(error);
+  }
+
+  CAMLreturn(Val_unit);
+}

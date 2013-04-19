@@ -74,9 +74,19 @@ external remove: db -> string -> unit = "kc_remove"
 (** [fold db combiner seed] folds the whole content of the database [db].*)
 external fold: db -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold"
 
-
 type cursor
 external cursor_open: db -> cursor = "kc_cursor_open"
 external cursor_next: cursor -> (string*string) option = "kc_cursor_next"
 external cursor_close: cursor -> unit = "kc_cursor_close"
 
+(** begin a transaction with no file synchronization (save on process crash, but not system crash). *)
+external begin_tran: db -> unit = "kc_begin_tran"
+
+(** begin a transaction with file synchronization (save on process or system crash). *)
+external begin_tran_sync: db -> unit = "kc_begin_tran_sync"
+
+(** commit the current transaction *)
+external commit_tran: db -> unit = "kc_commit_tran"
+
+(** abort the current transaction *)
+external abort_tran: db -> unit = "kc_abort_tran"

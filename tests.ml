@@ -39,8 +39,18 @@ let _ =
 
   Kyoto.cursor_close cursor;
 
+  (* working with transaction *)
+  Kyoto.begin_tran db;
+  Kyoto.set db "phantom" "opera";
+  assert (Kyoto.get db "phantom" = Some "opera");
+  Kyoto.abort_tran db;
+  assert (Kyoto.get db "phantom" = None);
+
+  Kyoto.begin_tran_sync db;
+  Kyoto.set db "phantom" "opera";
+  assert (Kyoto.get db "phantom" = Some "opera");
+  Kyoto.commit_tran db;
+  assert (Kyoto.get db "phantom" = Some "opera");
+
   (* close the database *)
   Kyoto.close db
-
-
-

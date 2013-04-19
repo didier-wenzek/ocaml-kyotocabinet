@@ -37,8 +37,8 @@ kyoto.cma: kyoto.cmo kyoto.cmx kyoto_ocaml_wrapper.o
 	ocamlmklib -o kyoto kyoto.cmo kyoto_ocaml_wrapper.o -lkyotocabinet
 
 test: kyoto.cmxa tests.cmx
-	ocamlopt -I . -o tests.native kyoto.cmxa tests.cmx
-	./tests.native
+	ocamlopt -I . -o tests.exe kyoto.cmxa tests.cmx
+	./tests.exe
 
 clean:
-	rm -f *.o *.cmo *.cmx *.cmi *.so *.a *.cma *.cmxa tests.native
+	rm -f *.o *.cmo *.cmx *.cmi *.so *.a *.cma *.cmxa tests.exe
