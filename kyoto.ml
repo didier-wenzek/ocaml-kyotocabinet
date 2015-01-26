@@ -50,6 +50,7 @@ external fold: db -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold"
 
 external cursor_open: db -> cursor = "kc_cursor_open"
 external cursor_next: cursor -> (string*string) option = "kc_cursor_next"
+external cursor_jump: cursor -> string -> unit = "kc_cursor_jump"
 external cursor_close: cursor -> unit = "kc_cursor_close"
 
 external begin_tran: db -> unit = "kc_begin_tran"

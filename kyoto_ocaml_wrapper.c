@@ -425,6 +425,21 @@ value kc_cursor_next(value caml_cursor)
 }
 
 extern CAMLprim
+value kc_cursor_jump(value caml_cursor, value key)
+{
+  CAMLparam2(caml_cursor, key);
+  
+  KCCUR* cur = get_cursor(caml_cursor);
+  if (! kccurjumpkey(cur, String_val(key), caml_string_length(key))) {
+     if (kccurecode(cur) != KCENOREC) {
+       RAISE(kccuremsg(cur));
+     }
+  }
+  
+  CAMLreturn(Val_unit);
+}
+
+extern CAMLprim
 value kc_fold(value caml_db, value caml_comb, value caml_seed)
 {
   CAMLparam3(caml_db, caml_comb, caml_seed);

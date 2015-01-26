@@ -8,6 +8,7 @@ let _ =
   Kyoto.set db "bar" "step";
   Kyoto.set db "baz" "jump";
   Kyoto.set db "baz2" "jump";
+  Kyoto.set db "zoo" "p";
 
   (* retrieve records *)
   assert (Kyoto.get db "foo" = Some "hop");
@@ -22,12 +23,12 @@ let _ =
   assert (not (Kyoto.exists db "baz2"));
 
   (* get stats *)
-  assert (Kyoto.count db = 3L);
+  assert (Kyoto.count db = 4L);
   assert (Kyoto.size db > 10L);
   assert (Kyoto.path db = "+");
 
   (* fold the whole database *)
-  assert (Kyoto.fold db (fun n x -> n+1) 0 = 3);
+  assert (Kyoto.fold db (fun n x -> n+1) 0 = 4);
 
   (* use a cursor to iter over the database *)
   let cursor = Kyoto.cursor_open db in
@@ -35,6 +36,17 @@ let _ =
   assert (Kyoto.cursor_next cursor = Some ("bar","step2"));
   assert (Kyoto.cursor_next cursor = Some ("baz","jump"));
   assert (Kyoto.cursor_next cursor = Some ("foo","hop"));
+  assert (Kyoto.cursor_next cursor = Some ("zoo","p"));
+  assert (Kyoto.cursor_next cursor = None);
+
+  Kyoto.cursor_close cursor;
+
+  (* use a cursor to find a given key *)
+  let cursor = Kyoto.cursor_open db in
+
+  Kyoto.cursor_jump cursor "bas";  
+  assert (Kyoto.cursor_next cursor = Some ("baz","jump"));
+  Kyoto.cursor_jump cursor "zz";  
   assert (Kyoto.cursor_next cursor = None);
 
   Kyoto.cursor_close cursor;

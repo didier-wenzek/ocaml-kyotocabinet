@@ -50,23 +50,23 @@ external find: db -> string -> string = "kc_find"
 
 (** [set db key data] inserts the pair ([key], [data]) in the database [db].
 
-   If the database already contains data associated with [key],
+   If the database already contains data associated with the [key],
    that data is discarded and silently replaced by the new [data]. *)
 external set: db -> string -> string -> unit = "kc_set"
 
 (** [add db key data] inserts the pair ([key], [data]) in the database [db].
 
-   If the database already contains data associated with [key],
+   If the database already contains data associated with the [key],
    it raises Invalid_Argument("Entry already exists"). *)
 external add: db -> string -> string -> unit = "kc_add"
 
 (** [replace db key data] inserts the pair ([key], [data]) in the database [db].
 
-   If the database already contains data associated with [key],
+   If the database doesn't contain any data associated with the [key],
    it raises Not_found. *)
 external replace: db -> string -> string -> unit = "kc_replace"
 
-(** [remove db key] removes the data associated with [key] in [db].
+(** [remove db key] removes the data associated to the [key] in the database [db].
 
    If [key] has no associated data, simply do nothing.*)
 external remove: db -> string -> unit = "kc_remove"
@@ -76,6 +76,7 @@ external fold: db -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold"
 
 type cursor
 external cursor_open: db -> cursor = "kc_cursor_open"
+external cursor_jump: cursor -> string -> unit = "kc_cursor_jump"
 external cursor_next: cursor -> (string*string) option = "kc_cursor_next"
 external cursor_close: cursor -> unit = "kc_cursor_close"
 

@@ -21,7 +21,7 @@ Basic
 
     #load "kyoto.cma";;
 
-    (* create a database, here a in-memory tree database. *)
+    (* create a database, here an in-memory tree database. *)
     let db = Kyoto.opendb "+" [Kyoto.OWRITER; Kyoto.OCREATE];;
 
     (* store records *)
