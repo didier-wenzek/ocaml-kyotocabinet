@@ -357,9 +357,11 @@ value kc_cursor_open(value caml_db)
   KCDB* db = get_db(caml_db);
   KCCUR* cur = kcdbcursor(db);
   if (! kccurjump(cur)) {
-     const char *error = kccuremsg(cur);
-     kccurdel(cur);
-     RAISE(error);
+     if (kccurecode(cur) != KCENOREC) {
+        const char *error = kccuremsg(cur);
+        kccurdel(cur);
+        RAISE(error);
+     }
   }
 
   value caml_cursor = alloc_small(1, Abstract_tag);
@@ -449,9 +451,11 @@ value kc_fold(value caml_db, value caml_comb, value caml_seed)
   KCDB* db = get_db(caml_db);
   KCCUR* cur = kcdbcursor(db);
   if (! kccurjump(cur)) {
-     const char *error = kccuremsg(cur);
-     kccurdel(cur);
-     RAISE(error);
+     if (kccurecode(cur) != KCENOREC) {
+        const char *error = kccuremsg(cur);
+        kccurdel(cur);
+        RAISE(error);
+     }
   }
 
   int ok = 0;

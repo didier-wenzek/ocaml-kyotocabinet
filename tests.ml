@@ -65,4 +65,15 @@ let _ =
   assert (Kyoto.get db "phantom" = Some "opera");
 
   (* close the database *)
-  Kyoto.close db
+  Kyoto.close db;
+
+  (* Working with an empty db *)
+  let empty_db = Kyoto.opendb "+" [Kyoto.OWRITER; Kyoto.OCREATE] in
+
+  assert (Kyoto.fold empty_db (fun n x -> n+1) 0 = 0);
+
+  let cursor = Kyoto.cursor_open empty_db in 
+  assert (Kyoto.cursor_next cursor = None);
+  Kyoto.cursor_close cursor;
+
+  Kyoto.close empty_db;

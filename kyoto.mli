@@ -75,9 +75,14 @@ external remove: db -> string -> unit = "kc_remove"
 external fold: db -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold"
 
 type cursor
+
+(** Open a cursor and jump to the first key,value pair if any. *)
 external cursor_open: db -> cursor = "kc_cursor_open"
+(** Jump to the first key,value pair having a key greater than the given key. *)
 external cursor_jump: cursor -> string -> unit = "kc_cursor_jump"
+(** Read the next key,value pair if any. *)
 external cursor_next: cursor -> (string*string) option = "kc_cursor_next"
+(** Close the cursor. *)
 external cursor_close: cursor -> unit = "kc_cursor_close"
 
 (** begin a transaction with no file synchronization (save on process crash, but not system crash). *)
