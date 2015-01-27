@@ -46,6 +46,11 @@ external add: db -> string -> string -> unit = "kc_add"
 external replace: db -> string -> string -> unit = "kc_replace"
 external remove: db -> string -> unit = "kc_remove"
 
+let update db init plus key value =
+  match get db key with
+  | None ->   set db key (init value)
+  | Some v -> set db key (plus v value)
+
 external fold: db -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold"
 external fold_prefix: db -> string -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold_prefix"
 external fold_range: db -> string -> string -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold_range"

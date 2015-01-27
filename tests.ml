@@ -83,3 +83,20 @@ let _ =
   Kyoto.cursor_close cursor;
 
   Kyoto.close empty_db;
+
+  (* Folding a stream into a database *)
+  let db = Kyoto.opendb "+" [Kyoto.OWRITER; Kyoto.OCREATE] in
+  let append = Kyoto.update db string_of_int (fun acc v -> string_of_int ((int_of_string acc) + v)) in
+
+  append "a" 12;
+  append "b" 12;
+  append "a" 21;
+  append "b" 1;
+  append "c" 1;
+
+  assert (Kyoto.get db "a" = Some "33");
+  assert (Kyoto.get db "b" = Some "13");
+  assert (Kyoto.get db "c" = Some "1");
+  assert (Kyoto.get db "d" = None);
+
+  Kyoto.close db;

@@ -74,6 +74,16 @@ external replace: db -> string -> string -> unit = "kc_replace"
    If [key] has no associated data, simply do nothing.*)
 external remove: db -> string -> unit = "kc_remove"
 
+(** [update db init plus key data] updates the value associated to the given [key].
+
+   If a previous value [v] is associated to the [key],
+   then the value to be inserted is computed after [plus v data].
+
+   If there is no data associated to the [key],
+   then the value to be inserted is [into data].
+*)
+val update: db -> ('a -> string) -> (string -> 'a -> string) -> string -> 'a -> unit
+
 (** [fold db combiner seed] folds the whole content of the database [db].*)
 external fold: db -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold"
 
