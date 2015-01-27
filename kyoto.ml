@@ -47,6 +47,8 @@ external replace: db -> string -> string -> unit = "kc_replace"
 external remove: db -> string -> unit = "kc_remove"
 
 external fold: db -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold"
+external fold_prefix: db -> string -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold_prefix"
+external fold_range: db -> string -> string -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold_range"
 
 external cursor_open: db -> cursor = "kc_cursor_open"
 external cursor_next: cursor -> (string*string) option = "kc_cursor_next"

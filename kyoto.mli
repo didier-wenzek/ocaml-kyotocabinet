@@ -1,6 +1,9 @@
 (** A key,value store database. *)
 type db
 
+(** A cursor used to iterate over (key,value) pairs. *)
+type cursor
+
 (** Exception raised when something gone wrong with the database. *)
 exception Error of string
 
@@ -74,7 +77,17 @@ external remove: db -> string -> unit = "kc_remove"
 (** [fold db combiner seed] folds the whole content of the database [db].*)
 external fold: db -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold"
 
-type cursor
+(** [fold db prefix combiner seed] folds the [(key,value)] pairs
+    having a key with the given [prefix].
+
+   This is meaningful only for sorted databases, i.e. tree databases. *)
+external fold_prefix: db -> string -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold_prefix"
+
+(** [fold db (Some min_key) (Some max_key) combiner seed] folds the [(key,value)] pairs
+    having a key in the range [min_key] (inclusive) .. [max_key] (exclusive).
+
+   This is meaningful only for sorted databases, i.e. tree databases. *)
+external fold_range: db -> string -> string -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold_range"
 
 (** Open a cursor and jump to the first key,value pair if any. *)
 external cursor_open: db -> cursor = "kc_cursor_open"

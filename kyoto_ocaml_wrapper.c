@@ -349,20 +349,45 @@ value kc_remove(value caml_db, value key)
   CAMLreturn(Val_unit);
 }
 
+static
+KCCUR* open_cursor(KCDB* db)
+{
+  KCCUR* cur = kcdbcursor(db);
+  if (! kccurjump(cur)) {
+     if (kccurecode(cur) != KCENOREC) {
+        const char *error = kccuremsg(cur);
+        kccurdel(cur);
+        cur = NULL;
+        RAISE(error);
+     }
+  }
+
+  return cur;
+}
+
+static
+KCCUR* open_cursor_jump(KCDB* db, const char *kbuf, size_t klen)
+{
+  KCCUR* cur = kcdbcursor(db);
+  if (! kccurjumpkey(cur, kbuf, klen)) {
+     if (kccurecode(cur) != KCENOREC) {
+        const char *error = kccuremsg(cur);
+        kccurdel(cur);
+        cur = NULL;
+        RAISE(error);
+     }
+  }
+
+  return cur;
+}
+
 extern CAMLprim
 value kc_cursor_open(value caml_db)
 {
   CAMLparam1(caml_db);
 
   KCDB* db = get_db(caml_db);
-  KCCUR* cur = kcdbcursor(db);
-  if (! kccurjump(cur)) {
-     if (kccurecode(cur) != KCENOREC) {
-        const char *error = kccuremsg(cur);
-        kccurdel(cur);
-        RAISE(error);
-     }
-  }
+  KCCUR* cur = open_cursor(db);
 
   value caml_cursor = alloc_small(1, Abstract_tag);
   KCCUR_val(caml_cursor) = cur;
@@ -449,17 +474,92 @@ value kc_fold(value caml_db, value caml_comb, value caml_seed)
   val = caml_seed;
 
   KCDB* db = get_db(caml_db);
-  KCCUR* cur = kcdbcursor(db);
-  if (! kccurjump(cur)) {
-     if (kccurecode(cur) != KCENOREC) {
-        const char *error = kccuremsg(cur);
-        kccurdel(cur);
-        RAISE(error);
-     }
+  KCCUR* cur = open_cursor(db);
+  if (! cur) {
+     CAMLreturn(val);
   }
 
   int ok = 0;
   while ((ok=kccuraccept(cur, get_pair, &pair, 0, 1))) {
+    val = caml_callback2(caml_comb, val, pair);
+  }
+  if (! ok && kccurecode(cur) != KCENOREC) {
+     const char *error = kccuremsg(cur);
+     kccurdel(cur);
+     RAISE(error);
+  }
+
+  kccurdel(cur);
+  CAMLreturn(val);
+}
+
+static
+int is_prefix(value caml_prefix, value caml_string)
+{
+  int prefix_len = caml_string_length(caml_prefix);
+  int string_len = caml_string_length(caml_string);
+
+  if (string_len < prefix_len) return 0;
+  return strncmp(String_val(caml_prefix), String_val(caml_string), prefix_len) == 0;
+};
+
+static
+int is_less_than(value caml_string1, value caml_string2)
+{
+  int string1_len = caml_string_length(caml_string1);
+  int string2_len = caml_string_length(caml_string2);
+
+  int lt_len = string1_len < string2_len;
+  int min_len = lt_len ? string1_len : string2_len;
+  int cmp = strncmp(String_val(caml_string1), String_val(caml_string2), min_len);
+  if (cmp == 0) return lt_len;
+  else return cmp < 0;
+};
+
+extern CAMLprim
+value kc_fold_prefix(value caml_db, value caml_prefix, value caml_comb, value caml_seed)
+{
+  CAMLparam4(caml_db, caml_prefix, caml_comb, caml_seed);
+  CAMLlocal2(val,pair);
+  val = caml_seed;
+
+  KCDB* db = get_db(caml_db);
+  KCCUR* cur = open_cursor_jump(db, String_val(caml_prefix), caml_string_length(caml_prefix));
+  if (! cur) {
+     CAMLreturn(val);
+  }
+
+  int ok = 0;
+  while ((ok=kccuraccept(cur, get_pair, &pair, 0, 1))
+       &&(is_prefix(caml_prefix,Field(pair,0)))) {
+    val = caml_callback2(caml_comb, val, pair);
+  }
+  if (! ok && kccurecode(cur) != KCENOREC) {
+     const char *error = kccuremsg(cur);
+     kccurdel(cur);
+     RAISE(error);
+  }
+
+  kccurdel(cur);
+  CAMLreturn(val);
+}
+
+extern CAMLprim
+value kc_fold_range(value caml_db, value caml_min, value caml_max, value caml_comb, value caml_seed)
+{
+  CAMLparam5(caml_db, caml_min, caml_max, caml_comb, caml_seed);
+  CAMLlocal2(val,pair);
+  val = caml_seed;
+
+  KCDB* db = get_db(caml_db);
+  KCCUR* cur = open_cursor_jump(db, String_val(caml_min), caml_string_length(caml_min));
+  if (! cur) {
+     CAMLreturn(val);
+  }
+
+  int ok = 0;
+  while ((ok=kccuraccept(cur, get_pair, &pair, 0, 1))
+       &&(is_less_than(Field(pair,0), caml_max))) {
     val = caml_callback2(caml_comb, val, pair);
   }
   if (! ok && kccurecode(cur) != KCENOREC) {
