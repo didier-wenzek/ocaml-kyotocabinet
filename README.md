@@ -14,12 +14,13 @@ Install
 -------
     $ make
     $ make test
-    $ make install
+    $ make install # use ocamlfind
 
 Basic
 -----
 
-    #load "kyoto.cma";;
+    #use "topfind";;
+    #require "okyoto";;
 
     (* create a database, here an in-memory tree database. *)
     let db = Kyoto.opendb "+" [Kyoto.OWRITER; Kyoto.OCREATE];;

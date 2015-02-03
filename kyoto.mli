@@ -80,7 +80,7 @@ external remove: db -> string -> unit = "kc_remove"
    then the value to be inserted is computed after [plus v data].
 
    If there is no data associated to the [key],
-   then the value to be inserted is [into data].
+   then the value to be inserted is [init data].
 *)
 val update: db -> ('a -> string) -> (string -> 'a -> string) -> string -> 'a -> unit
 

@@ -1,44 +1,22 @@
-all: kyoto.cma kyoto.cmxa
+TARGETS = okyoto.cma okyoto.cmxa okyoto.cmxs okyoto.a libocamlkyoto.a dllocamlkyoto.so kyoto.cmi kyoto.cma kyoto.cmx
+LIB = $(addprefix _build/, $(TARGETS))
 
-DESTDIR=`ocamlc -where`
-install: kyoto.cmxa kyoto.cma
-	cp kyoto.mli kyoto.cmi kyoto.cmxa kyoto.cma libkyoto.a dllkyoto.so $(DESTDIR)
+all:
+	ocamlbuild $(TARGETS)
 
-.SUFFIXES: .c .cpp .o .ml .mli .cmo .cmx .cmi
+install:
+	ocamlfind install okyoto META $(LIB)
 
-.c.o:
-	gcc -O2 -fpic -Wall -c $<
+uninstall:
+	ocamlfind remove okyoto
 
-.cpp.o:
-	g++ -O2 -fpic -c $<
+tests: tests.native
+	_build/tests.native
 
-.mli.cmi: 
-	ocamlc -c $<
-
-.ml.cmo: 
-	ocamlc -c $<
-
-.ml.cmx: 
-	ocamlopt -c $<
-
-.ml.o: 
-	ocamlopt -c $<
-
-kyoto.ml: kyoto.cmi
-
-libkyoto.a: kyoto_ocaml_wrapper.o
-	rm -f $@
-	ar rc $@ kyoto_ocaml_wrapper.o
-
-kyoto.cmxa: kyoto.cmx libkyoto.a
-	ocamlopt -a -o kyoto.cmxa kyoto.cmx -cclib -lkyoto -cclib -lkyotocabinet
-
-kyoto.cma: kyoto.cmo kyoto.cmx kyoto_ocaml_wrapper.o
-	ocamlmklib -o kyoto kyoto.cmo kyoto_ocaml_wrapper.o -lkyotocabinet
-
-test: kyoto.cmxa tests.cmx
-	ocamlopt -I . -o tests.exe kyoto.cmxa tests.cmx
-	./tests.exe
+tests.native: tests.ml
+	ocamlbuild -libs okyoto tests.native
 
 clean:
-	rm -f *.o *.cmo *.cmx *.cmi *.so *.a *.cma *.cmxa tests.exe
+	ocamlbuild -clean
+
+.PHONY: all clean tests install

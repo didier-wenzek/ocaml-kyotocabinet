@@ -1,0 +1,6 @@
+<libocamlkyoto.a>: use_kyotocabinet
+<okyoto.cma>: use_kyoto, use_kyotocabinet
+<okyoto.cmx>: use_kyoto, use_kyotocabinet
+<okyoto.cmxa>: use_kyoto, use_kyotocabinet
+<okyoto.cmxs>: use_kyoto, link_kyotocabinet
+<tests.native> : use_kyoto, use_kyotocabinet

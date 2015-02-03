@@ -1,0 +1,9 @@
+name="okyoto"
+version="0.1.0"
+description="OCaml bindings for Kyoto Cabinet DBM"
+requires=""
+archive(byte) = "okyoto.cma"
+archive(byte,plugin) = "okyoto.cma"
+archive(native) = "okyoto.cmxa"
+archive(native,plugin) = "okyoto.cmxs"
+
