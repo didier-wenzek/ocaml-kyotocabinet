@@ -16,6 +16,9 @@ tests: tests.native
 tests.native: tests.ml
 	ocamlbuild -libs okyoto tests.native
 
+kyotoselect.native: kyotoselect.ml
+	ocamlbuild -libs okyoto kyotoselect.native
+
 clean:
 	ocamlbuild -clean
 
