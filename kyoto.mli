@@ -108,10 +108,10 @@ external cursor_next: cursor -> (string*string) option = "kc_cursor_next"
 (** Close the cursor. *)
 external cursor_close: cursor -> unit = "kc_cursor_close"
 
-(** begin a transaction with no file synchronization (save on process crash, but not system crash). *)
+(** begin a transaction with no file synchronization (safe on process crash, but not system crash). *)
 external begin_tran: db -> unit = "kc_begin_tran"
 
-(** begin a transaction with file synchronization (save on process or system crash). *)
+(** begin a transaction with file synchronization (safe on process or system crash). *)
 external begin_tran_sync: db -> unit = "kc_begin_tran_sync"
 
 (** commit the current transaction *)

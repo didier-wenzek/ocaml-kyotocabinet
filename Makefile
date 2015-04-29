@@ -13,7 +13,7 @@ uninstall:
 tests: tests.native
 	_build/tests.native
 
-tests.native: tests.ml
+tests.native: tests.ml all
 	ocamlbuild -libs okyoto tests.native
 
 kyotoselect.native: kyotoselect.ml

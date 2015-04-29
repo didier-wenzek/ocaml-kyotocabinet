@@ -22,6 +22,7 @@ int const OPEN_FLAGS[] = {
 static
 int decode_flags(value options, int const codes[])
 {
+  CAMLparam1(options);
   CAMLlocal1(head);
   int flags = 0;
   while (options!=Val_emptylist) {
@@ -29,7 +30,7 @@ int decode_flags(value options, int const codes[])
     flags = flags | (codes[Int_val(head)]);
     options = Field(options, 1);
   }
-  return flags;
+  CAMLreturn(flags);
 }
 
 static
