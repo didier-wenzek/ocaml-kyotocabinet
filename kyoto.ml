@@ -51,14 +51,54 @@ let update db init plus key value =
   | None ->   set db key (init value)
   | Some v -> set db key (plus v value)
 
-external fold: db -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold"
-external fold_prefix: db -> string -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold_prefix"
-external fold_range: db -> string -> string -> ('a -> (string*string) -> 'a) -> 'a -> 'a = "kc_fold_range"
-
 external cursor_open: db -> cursor = "kc_cursor_open"
 external cursor_next: cursor -> (string*string) option = "kc_cursor_next"
 external cursor_jump: cursor -> string -> unit = "kc_cursor_jump"
 external cursor_close: cursor -> unit = "kc_cursor_close"
+
+let with_cursor db f =
+  let c = cursor_open db in
+  try
+    let res = f c in
+    let () = cursor_close c in
+    res
+  with e ->
+    let () = cursor_close c in
+    raise e
+
+let fold db f seed =
+  let fold c =
+    let rec loop acc =
+      match cursor_next c with
+      | None -> acc
+      | Some kv -> loop (f acc kv)
+    in
+    loop seed
+  in
+  with_cursor db fold
+
+let fold_while db init p f seed =
+  let fold c =
+    let () = init c in
+    let rec loop acc =
+      match cursor_next c with
+      | None -> acc
+      | Some kv ->
+      let k = fst kv in
+      if p k then loop (f acc kv) else acc
+    in
+    loop seed
+  in
+  with_cursor db fold
+
+external is_prefix: string -> string -> bool = "kc_is_prefix"
+external is_less_than: string -> string -> bool = "kc_is_less_than"
+
+let fold_prefix db prefix =
+  fold_while db (fun c -> cursor_jump c prefix) (is_prefix prefix)
+
+let fold_range db min max =
+  fold_while db (fun c -> cursor_jump c min) (is_less_than max)
 
 external begin_tran: db -> unit = "kc_begin_tran"
 external begin_tran_sync: db -> unit = "kc_begin_tran_sync"
