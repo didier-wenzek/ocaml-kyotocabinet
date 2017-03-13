@@ -24,6 +24,33 @@ type open_flag =
   and tuning parameters can trail the path.
   These conventions are inherited from kyotocabinet::PolyDB::open() :
   http://fallabs.com/kyotocabinet/api/classkyotocabinet_1_1PolyDB.html#a09384a72e6a72a0be98c80a1856f34aa
+
+  If it is "-", the database will be a prototype hash database.
+  If it is "+", the database will be a prototype tree database.
+  If it is ":", the database will be a stash database.
+  If it is "*", the database will be a cache hash database.
+  If it is "%", the database will be a cache tree database.
+  If its suffix is ".kch", the database will be a file hash database.
+  If its suffix is ".kct", the database will be a file tree database.
+  If its suffix is ".kcd", the database will be a directory hash database.
+  If its suffix is ".kcf", the database will be a directory tree database.
+  If its suffix is ".kcx", the database will be a plain text database.
+
+  Tuning parameters can trail the name, separated by "#".
+  Each parameter is composed of the name and the value, separated by "=".
+
+  If the "type" parameter is specified,
+  the database type is determined by the value in
+  "-", "+", ":", "*", "%", "kch", "kct", "kcd", "kcf", and "kcx".
+
+  The tuning parameter "log" specifies the path of the log file,
+  or "-" for the standard output,
+  or "+" for the standard error.
+
+  The parameter "logkinds" specifies kinds of logged messages
+  and the value can be "debug", "info", "warn", or "error".
+
+  "logpx" specifies the prefix of each log message.
 *)
 external opendb: string -> open_flag list -> db = "kc_open"
 
