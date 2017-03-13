@@ -32,6 +32,16 @@ let _ = Callback.register_exception "kyotocabinet.error" (Error "any string")
 external opendb: string -> open_flag list -> db = "kc_open"
 external close: db -> unit = "kc_close"
 
+let with_db path flags f =
+  let db = opendb path flags in
+  try
+    let res = f db in
+    let () = close db in
+    res
+  with e ->
+    let () = close db in
+    raise e
+
 external count: db -> int64 = "kc_count"
 external size: db -> int64 = "kc_size"
 external path: db -> string = "kc_path"

@@ -57,6 +57,9 @@ external opendb: string -> open_flag list -> db = "kc_open"
 (** Close the database file. *)
 external close: db -> unit = "kc_close"
 
+(** [with_db path flags f] opens a database, calls f on this db and ensures the db is finally closed. *)
+val with_db: string -> open_flag list -> (db -> 'a) -> 'a
+
 (** Return the count of key, value pairs. *)
 external count: db -> int64 = "kc_count"
 
@@ -134,6 +137,9 @@ external cursor_jump: cursor -> string -> unit = "kc_cursor_jump"
 external cursor_next: cursor -> (string*string) option = "kc_cursor_next"
 (** Close the cursor. *)
 external cursor_close: cursor -> unit = "kc_cursor_close"
+
+(** [with_cursor db f] opens a cursor, calls f on this cursor and ensures the cursor is finally closed. *)
+val with_cursor: db -> (cursor -> 'a) -> 'a
 
 (** begin a transaction with no file synchronization (safe on process crash, but not system crash). *)
 external begin_tran: db -> unit = "kc_begin_tran"
