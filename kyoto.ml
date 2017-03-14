@@ -113,3 +113,24 @@ external begin_tran: db -> unit = "kc_begin_tran"
 external begin_tran_sync: db -> unit = "kc_begin_tran_sync"
 external commit_tran: db -> unit = "kc_commit_tran"
 external abort_tran: db -> unit = "kc_abort_tran"
+
+let with_transaction db f =
+  try
+    let () = begin_tran db in
+    let res = f db in
+    let () = commit_tran db in
+    res
+  with e ->
+    let () = abort_tran db in
+    raise e
+  
+let with_transaction_sync db f =
+  try
+    let () = begin_tran_sync db in
+    let res = f db in
+    let () = commit_tran db in
+    res
+  with e ->
+    let () = abort_tran db in
+    raise e
+  

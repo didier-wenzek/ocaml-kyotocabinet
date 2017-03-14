@@ -68,6 +68,17 @@ let _ =
   Kyoto.commit_tran db;
   assert (Kyoto.get db "phantom" = Some "opera");
 
+  Kyoto.with_transaction db (fun db -> Kyoto.set db "new_key" "new_value");
+  assert (Kyoto.get db "new_key" = Some "new_value");
+
+  try
+    Kyoto.with_transaction db (
+      fun db -> Kyoto.set db "yet_another_key" "some_value";
+      if Kyoto.exists db "yet_another_key" then raise Not_found else ());
+    assert (false) (* an exeption was expected *)
+  with Not_found ->
+    assert (Kyoto.get db "yet_another_key" = None);
+
   (* close the database *)
   Kyoto.close db;
 

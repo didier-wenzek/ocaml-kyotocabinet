@@ -152,3 +152,9 @@ external commit_tran: db -> unit = "kc_commit_tran"
 
 (** abort the current transaction *)
 external abort_tran: db -> unit = "kc_abort_tran"
+
+(** Execution a function within a transaction. *)
+val with_transaction: db -> (db -> 'a) -> 'a
+
+(** Execution a function within a transaction with file synchronization. *)
+val with_transaction_sync: db -> (db -> 'a) -> 'a
