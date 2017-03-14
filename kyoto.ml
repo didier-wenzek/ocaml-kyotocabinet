@@ -102,13 +102,12 @@ let fold_while db init p f seed =
   with_cursor db fold
 
 external is_prefix: string -> string -> bool = "kc_is_prefix"
-external is_less_than: string -> string -> bool = "kc_is_less_than"
 
 let fold_prefix db prefix =
   fold_while db (fun c -> cursor_jump c prefix) (is_prefix prefix)
 
 let fold_range db min max =
-  fold_while db (fun c -> cursor_jump c min) (is_less_than max)
+  fold_while db (fun c -> cursor_jump c min) (fun s -> String.compare s max < 0)
 
 external begin_tran: db -> unit = "kc_begin_tran"
 external begin_tran_sync: db -> unit = "kc_begin_tran_sync"

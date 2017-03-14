@@ -467,24 +467,6 @@ value kc_is_prefix(value caml_prefix, value caml_string)
 };
 
 extern CAMLprim
-value kc_is_less_than(value caml_string1, value caml_string2)
-{
-  CAMLparam2(caml_string1, caml_string2);
-  CAMLlocal1(val);
-
-  int string1_len = caml_string_length(caml_string1);
-  int string2_len = caml_string_length(caml_string2);
-
-  int lt_len = string1_len < string2_len;
-  int min_len = lt_len ? string1_len : string2_len;
-  int cmp = strncmp(String_val(caml_string1), String_val(caml_string2), min_len);
-  if (cmp == 0) val = Val_bool(lt_len);
-  else val = Val_bool(cmp < 0);
-
-  CAMLreturn(val);
-};
-
-extern CAMLprim
 value kc_begin_tran(value caml_db)
 {
   CAMLparam1(caml_db);
