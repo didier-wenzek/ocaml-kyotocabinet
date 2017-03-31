@@ -223,6 +223,7 @@ value kc_replace(value caml_db, value key, value val)
 static
 const char* get_some_value(const char *kbuf, size_t ksiz, const char *vbuf, size_t vsiz, size_t *sp, void *opq)
 {
+  CAMLparam0();
   CAMLlocal1(str);
 
   str = caml_alloc_string(vsiz);
@@ -263,6 +264,7 @@ value kc_get(value caml_db, value key)
 static
 const char* get_the_value(const char *kbuf, size_t ksiz, const char *vbuf, size_t vsiz, size_t *sp, void *opq)
 {
+  CAMLparam0();
   CAMLlocal1(str);
 
   str = caml_alloc_string(vsiz);
@@ -396,6 +398,7 @@ value kc_cursor_close(value caml_cursor)
 static
 const char* get_pair(const char *kbuf, size_t ksiz, const char *vbuf, size_t vsiz, size_t *sp, void *opq)
 {
+  CAMLparam0();
   CAMLlocal3(key,val,pair);
 
   key  = caml_alloc_string(ksiz);
