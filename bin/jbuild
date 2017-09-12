@@ -1,0 +1,9 @@
+(jbuild_version 1)
+
+(executables
+ ((names (kyotoselect))
+  (libraries (okyoto))))
+
+(install
+ ((section bin)
+  (files ((kyotoselect.exe as kyotoselect)))))
