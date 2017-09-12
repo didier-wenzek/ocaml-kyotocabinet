@@ -9,3 +9,5 @@
 *.o
 *.ipc
 *.exe
+_build
+.merlin
