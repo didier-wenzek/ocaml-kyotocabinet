@@ -1,25 +1,16 @@
-TARGETS = okyoto.cma okyoto.cmxa okyoto.cmxs okyoto.a libocamlkyoto.a dllocamlkyoto.so kyoto.cmi kyoto.cma kyoto.cmx
-LIB = $(addprefix _build/, $(TARGETS))
-
 all:
-	ocamlbuild $(TARGETS)
+	jbuilder build @install
 
-install:
-	ocamlfind install okyoto META $(LIB)
+install: all
+	jbuilder install
 
 uninstall:
-	ocamlfind remove okyoto
+	jbuilder uninstall
 
-tests: tests.native
-	_build/tests.native
-
-tests.native: tests.ml all
-	ocamlbuild -libs okyoto tests.native
-
-kyotoselect.native: kyotoselect.ml
-	ocamlbuild -libs okyoto kyotoselect.native
+tests:
+	jbuilder runtest
 
 clean:
-	ocamlbuild -clean
+	jbuilder clean
 
-.PHONY: all clean tests install
+.PHONY: all clean tests install uninstall
