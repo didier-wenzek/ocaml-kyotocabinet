@@ -11,6 +11,4 @@ license: "GPL"
 build: [
   ["jbuilder" "build" "--only" "okyoto" "--root" "." "-j" jobs "@install"]
 ]
-install: [make "install"]
-remove: [make "uninstall"]
 depends: ["jbuilder"]
