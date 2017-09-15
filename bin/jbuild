@@ -2,7 +2,7 @@
 
 (executables
  ((names (kyoto_pairs kyoto_append))
-  (libraries (okyoto))))
+  (libraries (kyotocabinet))))
 
 (install
  ((section bin)

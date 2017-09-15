@@ -2,7 +2,7 @@
 
 (executable
  ((name tests)
-  (libraries (okyoto))))
+  (libraries (kyotocabinet))))
 
 (alias
  ((name    runtest)

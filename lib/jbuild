@@ -2,6 +2,6 @@
 
 (library
  ((name kyoto)
-  (public_name okyoto)
+  (public_name kyotocabinet)
   (c_names (kyoto_ocaml_wrapper))
   (c_library_flags (-lkyotocabinet))))

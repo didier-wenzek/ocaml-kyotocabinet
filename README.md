@@ -25,7 +25,7 @@ Basic
 
 ```ocaml
     #use "topfind";;
-    #require "okyoto";;
+    #require "kyotocabinet";;
 
     (* create a database, here an in-memory tree database. *)
     let db = Kyoto.opendb "+" [Kyoto.OWRITER; Kyoto.OCREATE];;

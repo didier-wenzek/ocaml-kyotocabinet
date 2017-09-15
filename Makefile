@@ -7,10 +7,10 @@ install: all
 uninstall:
 	jbuilder uninstall
 
-tests:
+test:
 	jbuilder runtest
 
 clean:
 	jbuilder clean
 
-.PHONY: all clean tests install uninstall
+.PHONY: all clean test install uninstall
