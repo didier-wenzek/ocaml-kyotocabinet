@@ -12,13 +12,18 @@ GNU General Public License.
 
 Install
 -------
-    $ make
+    $ make         # use jbuilder
     $ make test
-    $ make install # use ocamlfind
+    $ make install
+
+Documentation
+----------
+The API is documented in [lib/kyoto.mli](lib/kyoto.mli)
 
 Basic
 -----
 
+```ocaml
     #use "topfind";;
     #require "okyoto";;
 
@@ -54,3 +59,4 @@ Basic
 
     (* close the database *)
     Kyoto.close db;;
+```
