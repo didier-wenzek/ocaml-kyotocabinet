@@ -1,14 +1,19 @@
 opam-version: "1.2"
-version: "0.1"
-name: "kyotocabinet"
-description: "OCaml bindings for Kyoto Cabinet"
 maintainer: "Didier Wenzek <didier.wenzek@acidalie.com>"
 authors: ["Didier Wenzek <didier.wenzek@acidalie.com>"]
 homepage: "https://github.com/didier-wenzek/ocaml-kyotocabinet"
 bug-reports: "https://github.com/didier-wenzek/ocaml-kyotocabinet/issues"
-dev-repo: "https://github.com/didier-wenzek/ocaml-kyotocabinet"
+dev-repo: "https://github.com/didier-wenzek/ocaml-kyotocabinet.git"
 license: "GPL"
 build: [
-  ["jbuilder" "build" "--only" "okyoto" "--root" "." "-j" jobs "@install"]
+  ["jbuilder" "build" "--only" "kyotocabinet" "--root" "." "-j" jobs "@install"]
 ]
+build-test: [ "jbuilder" "runtest" "-p" name ]
 depends: ["jbuilder"]
+depexts: [
+  [[ "ubuntu"] ["libkyotocabinet-dev"]]
+  [[ "debian"] ["libkyotocabinet-dev"]]
+  [[ "fedora"] ["kyotocabinet-devel"]]
+  [[ "osx" "homebrew"] ["kyoto-cabinet"]]
+  [[ "osx" "macports"] ["kyotocabinet"]]
+]
