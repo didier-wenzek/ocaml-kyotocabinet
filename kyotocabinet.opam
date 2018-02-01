@@ -6,11 +6,11 @@ homepage: "https://github.com/didier-wenzek/ocaml-kyotocabinet"
 bug-reports: "https://github.com/didier-wenzek/ocaml-kyotocabinet/issues"
 dev-repo: "https://github.com/didier-wenzek/ocaml-kyotocabinet.git"
 license: "GPL"
-build: [
-  ["jbuilder" "build" "--only" "kyotocabinet" "--root" "." "-j" jobs "@install"]
-]
+build: [["jbuilder" "build" "-p" name "-j" jobs]]
 build-test: [ "jbuilder" "runtest" "-p" name ]
-depends: ["jbuilder"]
+depends: [
+  "jbuilder" {build}
+]
 depexts: [
   [[ "ubuntu"] ["libkyotocabinet-dev"]]
   [[ "debian"] ["libkyotocabinet-dev"]]
