@@ -28,7 +28,7 @@ let _ =
   assert (Kyoto.path db = "+");
 
   (* fold the whole database *)
-  assert (Kyoto.fold db (fun n (k,v) -> n+1) 0 = 4);
+  assert (Kyoto.fold db (fun n (_k,_v) -> n+1) 0 = 4);
 
   (* fold part of a sorted database *)
   assert (Kyoto.fold_prefix db "ba" (fun pairs (k,v) -> (k,v)::pairs) [] = ["baz","jump";"bar","step2"]);
@@ -85,9 +85,9 @@ let _ =
   (* Working with an empty db *)
   let empty_db = Kyoto.opendb "+" [Kyoto.OWRITER; Kyoto.OCREATE] in
 
-  assert (Kyoto.fold empty_db (fun n x -> n+1) 0 = 0);
-  assert (Kyoto.fold_prefix empty_db "" (fun n x -> n+1) 0 = 0);
-  assert (Kyoto.fold_range empty_db "a" "z" (fun n x -> n+1) 0 = 0);
+  assert (Kyoto.fold empty_db (fun n _x -> n+1) 0 = 0);
+  assert (Kyoto.fold_prefix empty_db "" (fun n _x -> n+1) 0 = 0);
+  assert (Kyoto.fold_range empty_db "a" "z" (fun n _x -> n+1) 0 = 0);
 
   let cursor = Kyoto.cursor_open empty_db in 
   assert (Kyoto.cursor_next cursor = None);

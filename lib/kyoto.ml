@@ -1,6 +1,7 @@
 type db
 type cursor
 
+(* Unused
 type db_type =
 |  TYPEVOID
 |  TYPEPHASH
@@ -14,6 +15,7 @@ type db_type =
 |  TYPEFOREST
 |  TYPETEXT
 |  TYPEMISC
+*)
 
 type open_flag =
 |  OREADER
